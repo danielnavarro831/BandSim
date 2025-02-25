@@ -1,6 +1,41 @@
+import random
+from Utility.DocReader import DocReader
 
 
 class Member:
+
+    @classmethod
+    def get_starting_stats(cls, level=1, instrument=None):
+        #  {"Name": str, "Genre Specialty": str, "Active Instrument": str, "Instrument Stats": {"Guitar": int}},
+        #  "Stats": {"Salary": int, "Music Theory": int, "Performance": int, "Stamina": int, "Fame": int}}
+        name = DocReader.get_random_variable("Member")
+        if instrument:
+            active_instrument = instrument
+        else:
+            active_instrument = DocReader.get_random_variable("Instrument")
+        genre_specialty = DocReader.get_random_variable("Genre")
+        stats = Member.roll_stats(active_instrument, level)
+        starting_stats = {"Name": name, "Genre Specialty": genre_specialty, "Active Instrument": active_instrument,
+                          "Instrument Stats": {active_instrument: stats["Instrument"][active_instrument]},
+                          "Stats": {}}
+        for stat in stats["Stats"].keys():
+            value = stats["Stats"][stat]
+            starting_stats["Stats"][stat] = value
+        return starting_stats
+
+    @classmethod
+    def roll_stats(cls, instrument: str, level=1):
+        stats = {"Music Theory": 0, "Performance": 0, "Fame": 0}
+        for stat in stats.keys():
+            value = random.randint(level, level*3)
+            stats[stat] = value
+        stats["Stamina"] = 50 + (50 * level)
+        stats["Salary"] = 100 * level
+        instrument_stat = random.randint(level, level*3)
+        i_stat = {instrument: instrument_stat}
+        member_stats = {"Stats": stats, "Instrument": i_stat}
+        return member_stats
+
     def __init__(self, starting_stats=None):
         self.name = ""  # Create method to generate a random name
         self.genre_specialty = ""
