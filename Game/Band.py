@@ -21,6 +21,7 @@ class Band:
         return Band._negative_money
 
     def __init__(self):
+        self.band_name = ""
         self.members = {}  # Dict of "Member Name": Member object
         self.albums = {}  # Dict of "Album Title": Album Object
         self.fame_level = 0
