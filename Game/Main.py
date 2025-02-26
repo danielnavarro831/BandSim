@@ -2,6 +2,7 @@ from Utility.DocReader import DocReader
 from Game.Member import Member
 from tkinter import *
 from Game.Band import Band
+from Game.Location import Location
 
 
 class Game:
@@ -9,7 +10,7 @@ class Game:
         self.version = "0.01"
         self.app = Tk()
         # self.app.iconbitmap("./nine_lives_32.ico") -- icon
-        # self.app.resizable(False, False)
+        self.app.resizable(False, False)
         self.app.title("Band Simulator")
 
         self.version_label = Label(self.app, text="Ver: " + self.version + " ", bd=1, relief=SUNKEN, anchor=E)
@@ -99,4 +100,15 @@ class Game:
         return band
 
 
-game = Game()
+# game = Game()
+l_name = "Watsonville"
+location = Location(l_name)
+Location.set_location(location)
+Location.log_performance_hype(location)
+location2 = Location("Watsonville")
+Location.set_location(location2)
+Location.log_performance_hype(location2)
+Location.clear_hype("Next Album")
+
+location_log = Location.get_performance_log()
+print(str(location_log))

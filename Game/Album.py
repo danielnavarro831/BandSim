@@ -9,6 +9,7 @@ class Album:
         self.rating = {"Theory": 0, "Performance": 0, "Overall": 0}
         self.release_method = ""
         self.num_sold = 0
+        self.year_released = 0
 
     def set_album_name(self, name: str):
         self.name = name
