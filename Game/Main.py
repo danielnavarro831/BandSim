@@ -3,6 +3,7 @@ from Game.Member import Member
 from tkinter import *
 from Game.Band import Band
 from Game.Location import Location
+from Game.Album import Album
 
 
 class Game:
@@ -101,14 +102,6 @@ class Game:
 
 
 # game = Game()
-l_name = "Watsonville"
-location = Location(l_name)
-Location.set_location(location)
-Location.log_performance_hype(location)
-location2 = Location("Watsonville")
-Location.set_location(location2)
-Location.log_performance_hype(location2)
-Location.clear_hype("Next Album")
 
-location_log = Location.get_performance_log()
-print(str(location_log))
+band = Game.generate_new_band()
+band.make_album("New", "Nu", 15)

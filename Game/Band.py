@@ -40,7 +40,7 @@ class Band:
         return False
 
     def add_album(self, album: Album):
-        album_name = album.name
+        album_name = album.album_name
         self.albums[album_name] = album
 
     def set_album_credits(self):
@@ -58,10 +58,7 @@ class Band:
         self.fame_level = self.calculate_fame_level()
 
     def calculate_fame_level(self):
-        sum_fame = 0
-        for member in self.members.keys():
-            current_member = self.members[member]
-            sum_fame += current_member.stats["Fame"]
+        sum_fame = self.get_group_stat("Fame")
         average_fame = int(sum_fame / len(self.members))
         fame = average_fame
         if self.albums:
@@ -81,15 +78,8 @@ class Band:
             Band.set_negative_money(True)
             self.money = 0
 
-    def get_member_salaries(self):
-        salary_total = 0
-        for member in self.members.keys():
-            current_member = self.members[member]
-            salary_total += current_member.stats["Salary"]
-        return salary_total
-
     def pay_member_salaries(self):
-        salary_payment = self.get_member_salaries()
+        salary_payment = self.get_group_stat("Salary")
         self.decrease_money(salary_payment)
         if Band.get_negative_money():
             self.fire_random_member()
@@ -120,3 +110,36 @@ class Band:
             album_total_score += review_score
         album_fame_score = int(album_total_score / len(self.albums))
         return album_fame_score
+
+    def get_group_stat(self, stat: str):
+        group_score = 0
+        for member in self.members.keys():
+            band_member = self.members[member]
+            member_score = band_member.stats[stat]
+            instrument_stat = Band.get_instrument_score(band_member)
+            if stat == "Performance" and instrument_stat:
+                member_score *= instrument_stat
+            group_score += member_score
+        return group_score
+
+    @classmethod
+    def get_instrument_score(cls, member: Member):
+        active_instrument = member.get_active_instrument()
+        instrument_score = member.instrument_stats[active_instrument]
+        return instrument_score
+
+    def make_album(self, album_name: str, genre: str, hype: int):
+        album = Album(album_name, genre)
+        album_credits = self.set_album_credits()
+        album.set_album_credits(album_credits)
+        fame = self.calculate_fame_level()
+        if fame <= 0:
+            fame = 1
+        if hype <= 0:
+            hype = 1
+        theory_score = self.get_group_stat("Music Theory")
+        performance_score = self.get_group_stat("Performance")
+        review_score = album.review_album(theory_score, performance_score)
+        num_sold = fame * (hype + review_score)
+        album.increase_num_sold(num_sold)
+        print("Num Sold: " + str(num_sold))
