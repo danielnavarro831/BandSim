@@ -4,6 +4,7 @@ from tkinter import *
 from Game.Band import Band
 from Game.Location import Location
 from Game.Album import Album
+import os
 
 
 class Game:
@@ -105,3 +106,6 @@ class Game:
 
 band = Game.generate_new_band()
 band.make_album("New", "Nu", 15)
+# f = os.path.abspath('Band.py')
+# g = os.path.abspath('Band_Sim_Vars_V1.xlsx')
+# print(g)

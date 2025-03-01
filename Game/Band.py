@@ -142,4 +142,13 @@ class Band:
         review_score = album.review_album(theory_score, performance_score)
         num_sold = fame * (hype + review_score)
         album.increase_num_sold(num_sold)
+        self.check_if_fame_increased(review_score)
         print("Num Sold: " + str(num_sold))
+
+    def check_if_fame_increased(self, album_score: int):
+        if album_score >= 100:
+            for member in self.members.keys():
+                band_member = self.members[member]
+                band_member.increase_stat("Fame", 1)
+                self.members[member] = band_member
+                print(str(member) + "'s Fame increased!")
