@@ -30,7 +30,7 @@ class Member:
             value = random.randint(level, level*3)
             stats[stat] = value
         stats["Stamina"] = 50 + (50 * level)
-        stats["Salary"] = 100 * level
+        stats["Salary"] = 1000 * level
         instrument_stat = random.randint(level, level*3)
         i_stat = {instrument: instrument_stat}
         member_stats = {"Stats": stats, "Instrument": i_stat}

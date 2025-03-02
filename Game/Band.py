@@ -5,6 +5,18 @@ import random
 
 class Band:
     _negative_money = False
+    _base_stat_increase_cost = 1000
+    _base_salary = 1000
+
+    @classmethod
+    def get_base_stat_increase_cost(cls):
+        return Band._base_stat_increase_cost
+
+    @classmethod
+    def get_cost_of_stat_increase(cls, current_stat_value: int):
+        base_cost = Band.get_base_stat_increase_cost()
+        cost = current_stat_value * base_cost
+        return cost
 
     @classmethod
     def set_negative_money(cls, state=None):
@@ -152,3 +164,19 @@ class Band:
                 band_member.increase_stat("Fame", 1)
                 self.members[member] = band_member
                 print(str(member) + "'s Fame increased!")
+
+    def take_class(self, member_name: str, stat: str):
+        band_member = self.members[member_name]
+        if stat in band_member.stats.keys():
+            member_current_stat_value = band_member.stats[stat]
+            cost = Band.get_cost_of_stat_increase(member_current_stat_value)
+            band_member.increase_stat(stat, 1)
+        else:
+            member_current_stat_value = band_member.instrument_stats[stat]
+            cost = Band.get_cost_of_stat_increase(member_current_stat_value)
+            band_member.increase_instrument_stat(stat, 1)
+        band_member.increase_stat("Salary", 1000)
+        self.members[member_name] = band_member
+        self.decrease_money(cost)
+        print(member_name + " leveled up their " + stat + " to " + str(member_current_stat_value + 1) + "!")
+        print(member_name + "'s Salary increased to " + str(band_member.stats["Salary"]))

@@ -11,7 +11,6 @@ STRINGS_LOCATION = ""
 
 class DocReader:
     _vars_location = VARS_LOCATION
-    print("_vars_location: " + VARS_LOCATION)
     _strings_location = STRINGS_LOCATION
 
     @classmethod
