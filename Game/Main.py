@@ -43,10 +43,10 @@ class Game:
         self.file_menu = Menu(self.menu)
         self.file_menu.add_command(label="Exit", command=self.app.quit)
         self.menu.add_cascade(label="File", menu=self.file_menu)
-        # self.pet_button = Button(self.app, text="Pet", padx=38, pady=10, command=lambda: self.pet_pet(self.pet))
         self.members_button = Button(self.app, text="Members", padx=35, pady=10, command=lambda: self.open_manage_members_menu())
         self.albums_button = Button(self.app, text="Albums", padx=34, pady=10)
         self.perform_button = Button(self.app, text="Perform", padx=35, pady=10)
+
         self.back_button = Button(self.app, text="<-Back", padx=35, pady=10, command=lambda: self.open_main_menu())
         self.member1_button = Button(self.app, text="Member1", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member1_button["text"]))
         self.member2_button = Button(self.app, text="Member2", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member2_button["text"]))
@@ -54,16 +54,19 @@ class Game:
         self.member4_button = Button(self.app, text="Member4", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member4_button["text"]))
         self.member5_button = Button(self.app, text="Member5", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member5_button["text"]))
         self.hire_button = Button(self.app, text="Hire", padx=35, pady=10)
+
         self.fire_button = Button(self.app, text="fire", padx=35, pady=10)
         self.theory_class_button = Button(self.app, text="Music Class", padx=35, pady=10, command=lambda: self.band.take_class(Game._active_member, "Music Theory"))
         self.performance_class_button = Button(self.app, text="Performance Class", padx=35, pady=10, command=lambda: self.band.take_class(Game._active_member, "Performance"))
         self.instrument_class_button = Button(self.app, text="Music Class", padx=35, pady=10, command=lambda: self.band.take_class(self._active_member, self.band.members[Game._active_member].get_active_instrument()))
         self.change_instrument_button = Button(self.app, text="Change Instrument", padx=35, pady=10, command=lambda: self.open_change_instrument_menu())
-        self.guitar_radio_button = Radiobutton(self.app, text="Guitar", padx=35, pady=10, command=lambda: self.band.members[Game._active_member].set_active_instrument("Guitar"))
-        self.bass_radio_button = Radiobutton(self.app, text="Bass", padx=35, pady=10, command=lambda: self.band.members[Game._active_member].set_active_instrument("Bass"))
-        self.drums_radio_button = Radiobutton(self.app, text="Drums", padx=35, pady=10, command=lambda: self.band.members[Game._active_member].set_active_instrument("Drums"))
-        self.vocals_radio_button = Radiobutton(self.app, text="Vocals", padx=35, pady=10, command=lambda: self.band.members[Game._active_member].set_active_instrument("Vocals"))
-        self.keyboard_radio_button = Radiobutton(self.app, text="Keyboard", padx=35, pady=10, command=lambda: self.band.members[Game._active_member].set_active_instrument("Keyboard"))
+
+        self.guitar_button = Button(self.app, text="Guitar", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Guitar"))
+        self.bass_button = Button(self.app, text="Bass", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Bass"))
+        self.drums_button = Button(self.app, text="Drums", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Drums"))
+        self.vocals_button = Button(self.app, text="Vocals", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Vocals"))
+        self.keyboard_button = Button(self.app, text="Keyboard", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Keyboard"))
+
         self.name_bar = Entry(self.app, width=35, justify="center")
         band_name = DocReader.get_random_variable("Band")
         self.name_bar.insert(0, band_name)
@@ -78,6 +81,7 @@ class Game:
         self.close_main_menu()
         self.close_manage_members_menu()
         self.close_member_profile_menu()
+        self.close_change_instrument_menu()
 
     def open_main_menu(self):
         self.close_all_menus()
@@ -94,6 +98,7 @@ class Game:
 
     def open_manage_members_menu(self):
         self.close_all_menus()
+        self.back_button["command"] = lambda: self.open_main_menu()
         self.back_button.grid(row=2, column=0)
         self.hire_button.grid(row=2, column=1)
         buttons = {1: self.member1_button, 2: self.member2_button, 3: self.member3_button, 4: self.member4_button,
@@ -114,6 +119,7 @@ class Game:
     def open_member_profile_menu(self, member: str):
         Game.set_active_member(member)
         self.close_all_menus()
+        self.back_button["command"] = lambda: self.open_manage_members_menu()
         self.back_button.grid(row=2, column=0)
         self.fire_button.grid(row=2, column=1)
         self.theory_class_button.grid(row=3, column=0)
@@ -140,18 +146,36 @@ class Game:
 
     def open_change_instrument_menu(self):
         self.close_all_menus()
+        self.back_button["command"] = lambda: self.open_member_profile_menu(Game._active_member)
         self.back_button.grid(row=2, column=0)
-        self.guitar_radio_button.grid(row=3, column=0)
-        self.bass_radio_button.grid(row=4, column=0)
-        self.drums_radio_button.grid(row=5, column=0)
-        self.vocals_radio_button.grid(row=6, column=0)
-        self.keyboard_radio_button.grid(row=7, column=0)
+        active_member = self.band.members[Game._active_member]
+        active_instrument = active_member.get_active_instrument()
+        buttons = {"Guitar": self.guitar_button, "Bass": self.bass_button, "Drums": self.drums_button,
+                   "Vocals": self.vocals_button, "Keyboard": self.keyboard_button}
+        row = 3
+        for button in buttons.keys():
+            if button == active_instrument:
+                buttons[button]["state"] = "disabled"
+            else:
+                buttons[button]["state"] = "normal"
+            buttons[button].grid(row=row, column=0)
+            row += 1
+        active_member = self.band.members[Game._active_member]
+        active_instrument = active_member.get_active_instrument()
+
+    def close_change_instrument_menu(self):
+        self.back_button.grid_remove()
+        self.guitar_button.grid_remove()
+        self.bass_button.grid_remove()
+        self.drums_button.grid_remove()
+        self.vocals_button.grid_remove()
+        self.keyboard_button.grid_remove()
+
+    def change_instrument_tapped(self, instrument: str):
+        self.band.members[Game._active_member].set_active_instrument(instrument)
+        self.close_all_menus()
+        self.open_member_profile_menu(Game._active_member)
+        print(Game._active_member + " changed instruments to " + instrument)
 
 
 game = Game()
-
-# band = Game.generate_new_band()
-# band.make_album("New", "Nu", 15)
-# # f = os.path.abspath('Band.py')
-# # g = os.path.abspath('Band_Sim_Vars_V1.xlsx')
-# # print(g)
