@@ -155,6 +155,7 @@ class Band:
         num_sold = fame * (hype + review_score)
         album.increase_num_sold(num_sold)
         self.check_if_fame_increased(review_score)
+        self.add_album(album)
         print("Num Sold: " + str(num_sold))
 
     def check_if_fame_increased(self, album_score: int):

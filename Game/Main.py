@@ -240,14 +240,17 @@ class Game:
 
     def make_album(self):
         album_name = self.name_bar.get()
-        print("Album Name: " + album_name)
-        genre = str(self.selected_genre.get())
-        print("Genre: " + genre)
-        album_type = str(self.selected_album_type.get())
-        print("Album Type: " + album_type)
-        hype = Location.get_hype_generated()
-        print("Hype Generated: " + str(hype))
-        self.band.make_album(album_name, genre, hype, album_type)
+        if self.band.check_if_album_name_exists(album_name):
+            print("Album title already used")
+        else:
+            print("Album Name: " + album_name)
+            genre = str(self.selected_genre.get())
+            print("Genre: " + genre)
+            album_type = str(self.selected_album_type.get())
+            print("Album Type: " + album_type)
+            hype = Location.get_hype_generated()
+            print("Hype Generated: " + str(hype))
+            self.band.make_album(album_name, genre, hype, album_type)
 
 
 game = Game()
