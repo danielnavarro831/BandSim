@@ -95,7 +95,7 @@ class Game:
         self.selected_album_type.set(self.album_types[0])
         self.album_types_dropdown = OptionMenu(self.app, self.selected_album_type, *self.album_types)
 
-        self.make_album_button = Button(self.app, text="Make Album", padx=35, pady=10)
+        self.make_album_button = Button(self.app, text="Make Album", padx=35, pady=10, command=self.make_album)
         ################################################################################################################
         #                                             Launch App
         ################################################################################################################
@@ -239,7 +239,15 @@ class Game:
         self.make_album_button.grid_remove()
 
     def make_album(self):
-        pass
+        album_name = self.name_bar.get()
+        print("Album Name: " + album_name)
+        genre = str(self.selected_genre.get())
+        print("Genre: " + genre)
+        album_type = str(self.selected_album_type.get())
+        print("Album Type: " + album_type)
+        hype = Location.get_hype_generated()
+        print("Hype Generated: " + str(hype))
+        self.band.make_album(album_name, genre, hype, album_type)
 
 
 game = Game()

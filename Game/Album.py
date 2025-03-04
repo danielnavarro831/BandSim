@@ -13,9 +13,10 @@ class Album:
             album_types.append(album_type)
         return album_types
 
-    def __init__(self, album_name: str, genre: str):
+    def __init__(self, album_name: str, genre: str, album_type: str):
         self.album_name = album_name
         self.genre = genre
+        self.album_type = album_type
         self.album_credits = {}
         self.track_titles = []
         self.rating = {"Music Theory": 0, "Performance": 0, "Overall": 0}

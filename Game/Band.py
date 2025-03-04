@@ -140,8 +140,8 @@ class Band:
         instrument_score = member.instrument_stats[active_instrument]
         return instrument_score
 
-    def make_album(self, album_name: str, genre: str, hype: int):
-        album = Album(album_name, genre)
+    def make_album(self, album_name: str, genre: str, hype: int, album_type: str):
+        album = Album(album_name, genre, album_type)
         album_credits = self.set_album_credits()
         album.set_album_credits(album_credits)
         fame = self.calculate_fame_level()
