@@ -31,60 +31,98 @@ class Game:
         return band
 
     def __init__(self):
+        ################################################################################################################
+        #                                               App Info
+        ################################################################################################################
         self.version = "0.01"
         self.app = Tk()
         # self.app.iconbitmap("./nine_lives_32.ico") -- icon
         self.app.resizable(False, False)
         self.app.title("Band Simulator")
-
+        ################################################################################################################
+        #                                               Main Menu
+        ################################################################################################################
         self.version_label = Label(self.app, text="Ver: " + self.version + " ", bd=1, relief=SUNKEN, anchor=E)
         self.menu = Menu(self.app)
         self.app.config(menu=self.menu)
         self.file_menu = Menu(self.menu)
         self.file_menu.add_command(label="Exit", command=self.app.quit)
         self.menu.add_cascade(label="File", menu=self.file_menu)
-        self.members_button = Button(self.app, text="Members", padx=35, pady=10, command=lambda: self.open_manage_members_menu())
-        self.albums_button = Button(self.app, text="Albums", padx=34, pady=10)
+        self.members_button = Button(self.app, text="Members", padx=35, pady=10, command=self.open_manage_members_menu)
+        self.albums_button = Button(self.app, text="Albums", padx=34, pady=10, command=self.open_album_menu)
         self.perform_button = Button(self.app, text="Perform", padx=35, pady=10)
-
-        self.back_button = Button(self.app, text="<-Back", padx=35, pady=10, command=lambda: self.open_main_menu())
+        ################################################################################################################
+        #                                       Member Management Menu
+        ################################################################################################################
+        self.back_button = Button(self.app, text="<-Back", padx=35, pady=10, command=self.open_main_menu)
         self.member1_button = Button(self.app, text="Member1", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member1_button["text"]))
         self.member2_button = Button(self.app, text="Member2", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member2_button["text"]))
         self.member3_button = Button(self.app, text="Member3", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member3_button["text"]))
         self.member4_button = Button(self.app, text="Member4", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member4_button["text"]))
         self.member5_button = Button(self.app, text="Member5", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member5_button["text"]))
         self.hire_button = Button(self.app, text="Hire", padx=35, pady=10)
-
+        ################################################################################################################
+        #                                       Member Profile Menu
+        ################################################################################################################
         self.fire_button = Button(self.app, text="fire", padx=35, pady=10)
-        self.theory_class_button = Button(self.app, text="Music Class", padx=35, pady=10, command=lambda: self.band.take_class(Game._active_member, "Music Theory"))
+        self.theory_class_button = Button(self.app, text="Music Theory Class", padx=35, pady=10, command=lambda: self.band.take_class(Game._active_member, "Music Theory"))
         self.performance_class_button = Button(self.app, text="Performance Class", padx=35, pady=10, command=lambda: self.band.take_class(Game._active_member, "Performance"))
-        self.instrument_class_button = Button(self.app, text="Music Class", padx=35, pady=10, command=lambda: self.band.take_class(self._active_member, self.band.members[Game._active_member].get_active_instrument()))
-        self.change_instrument_button = Button(self.app, text="Change Instrument", padx=35, pady=10, command=lambda: self.open_change_instrument_menu())
-
+        self.instrument_class_button = Button(self.app, text="Instrument Class", padx=35, pady=10, command=lambda: self.band.take_class(self._active_member, self.get_active_member_instrument()))
+        self.change_instrument_button = Button(self.app, text="Change Instrument", padx=35, pady=10, command=self.open_change_instrument_menu)
+        ################################################################################################################
+        #                                       Change Instrument Menu
+        ################################################################################################################
         self.guitar_button = Button(self.app, text="Guitar", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Guitar"))
         self.bass_button = Button(self.app, text="Bass", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Bass"))
         self.drums_button = Button(self.app, text="Drums", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Drums"))
         self.vocals_button = Button(self.app, text="Vocals", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Vocals"))
         self.keyboard_button = Button(self.app, text="Keyboard", padx=35, pady=10, command=lambda: self.change_instrument_tapped("Keyboard"))
+        ################################################################################################################
+        #                                             Album Menu
+        ################################################################################################################
+        self.selected_genre = StringVar()
+        self.genres = DocReader.get_all_genres()
+        self.selected_genre.set(self.genres[0])
+        self.genre_dropdown = OptionMenu(self.app, self.selected_genre, *self.genres)
 
         self.name_bar = Entry(self.app, width=35, justify="center")
+        self.album_label = Label(self.app, text="Album Title: ")
         band_name = DocReader.get_random_variable("Band")
         self.name_bar.insert(0, band_name)
 
-        self.open_main_menu()
+        self.selected_album_type = StringVar()
+        self.album_types = Album.get_album_types()
+        self.selected_album_type.set(self.album_types[0])
+        self.album_types_dropdown = OptionMenu(self.app, self.selected_album_type, *self.album_types)
+
+        self.make_album_button = Button(self.app, text="Make Album", padx=35, pady=10)
+        ################################################################################################################
+        #                                             Launch App
+        ################################################################################################################
         self.version_label.grid(row=10, column=0, columnspan=2, sticky=W+E)
         self.band = Game.generate_new_band()
         self.band.band_name = band_name
+        self.open_main_menu()
         self.app.mainloop()  # Must be last line
+
+    def get_active_member_instrument(self):
+        member_name = Game._active_member
+        member = self.band.members[member_name]
+        return member.get_active_instrument()
 
     def close_all_menus(self):
         self.close_main_menu()
         self.close_manage_members_menu()
         self.close_member_profile_menu()
         self.close_change_instrument_menu()
+        self.close_album_menu()
 
     def open_main_menu(self):
         self.close_all_menus()
+        Game.clear_active_member()
+        self.name_bar.delete(0, END)
+        band_name = self.band.band_name
+        self.name_bar.insert(0, band_name)
         self.name_bar.grid(row=0, column=0, columnspan=2)
         self.members_button.grid(row=2, column=0, columnspan=2)
         self.albums_button.grid(row=3, column=0)
@@ -118,12 +156,17 @@ class Game:
 
     def open_member_profile_menu(self, member: str):
         Game.set_active_member(member)
+        active_member = self.band.members[member]
+        active_instrument = active_member.get_active_instrument()
         self.close_all_menus()
         self.back_button["command"] = lambda: self.open_manage_members_menu()
         self.back_button.grid(row=2, column=0)
         self.fire_button.grid(row=2, column=1)
         self.theory_class_button.grid(row=3, column=0)
         self.performance_class_button.grid(row=3, column=1)
+        if active_instrument == "Drums" or active_instrument == "Vocals":
+            active_instrument = active_instrument[:-1]
+        self.instrument_class_button["text"] = active_instrument + " class"
         self.instrument_class_button.grid(row=4, column=0)
         self.change_instrument_button.grid(row=4, column=1)
 
@@ -160,8 +203,6 @@ class Game:
                 buttons[button]["state"] = "normal"
             buttons[button].grid(row=row, column=0)
             row += 1
-        active_member = self.band.members[Game._active_member]
-        active_instrument = active_member.get_active_instrument()
 
     def close_change_instrument_menu(self):
         self.back_button.grid_remove()
@@ -176,6 +217,29 @@ class Game:
         self.close_all_menus()
         self.open_member_profile_menu(Game._active_member)
         print(Game._active_member + " changed instruments to " + instrument)
+
+    def open_album_menu(self):
+        self.close_all_menus()
+        self.back_button["command"] = self.open_main_menu
+        self.album_label.grid(row=1, column=0)
+        self.name_bar.grid(row=1, column=1)
+        self.name_bar.delete(0, END)
+        self.name_bar.insert(0, DocReader.get_random_variable("Band"))
+        self.back_button.grid(row=2, column=0)
+        self.genre_dropdown.grid(row=4, column=0)
+        self.album_types_dropdown.grid(row=4, column=1)
+        self.make_album_button.grid(row=5, column=0, columnspan=2)
+
+    def close_album_menu(self):
+        self.back_button.grid_remove()
+        self.album_label.grid_remove()
+        self.name_bar.grid_remove()
+        self.genre_dropdown.grid_remove()
+        self.album_types_dropdown.grid_remove()
+        self.make_album_button.grid_remove()
+
+    def make_album(self):
+        pass
 
 
 game = Game()

@@ -1,9 +1,17 @@
 import random
+from Utility.DocReader import DocReader
 
 
 class Album:
 
-    _album_multiplier = {"CD": 1, "CD + DVD": 3, "Vinyl": 5}
+    _album_multiplier = DocReader.get_album_types()
+
+    @classmethod
+    def get_album_types(cls):
+        album_types = []
+        for album_type in Album._album_multiplier.keys():
+            album_types.append(album_type)
+        return album_types
 
     def __init__(self, album_name: str, genre: str):
         self.album_name = album_name

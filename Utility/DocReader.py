@@ -58,3 +58,37 @@ class DocReader:
         elif var_type == "Genre":
             return ["Genre"]
         return []
+
+    @classmethod
+    def get_all_instruments(cls):
+        instruments = []
+        book = openpyxl.load_workbook(DocReader._vars_location)  # Opens the excel file
+        sheet = book["Instrument"]
+        for i in range(sheet.max_row + 1):
+            if sheet.cell(row=i, column=1).value:
+                instrument = sheet.cell(row=i, column=1).value
+                instruments.append(instrument)
+        return instruments
+
+    @classmethod
+    def get_all_genres(cls):
+        genres = []
+        book = openpyxl.load_workbook(DocReader._vars_location)  # Opens the excel file
+        sheet = book["Genre"]
+        for i in range(sheet.max_row + 1):
+            if sheet.cell(row=i + 1, column=1).value:
+                genre = sheet.cell(row=i + 1, column=1).value
+                genres.append(genre)
+        return genres
+
+    @classmethod
+    def get_album_types(cls):
+        albums = {}
+        book = openpyxl.load_workbook(DocReader._vars_location)  # Opens the excel file
+        sheet = book["Album Type"]
+        for i in range(sheet.max_row + 1):
+            if sheet.cell(row=i + 1, column=1).value:
+                album_type = sheet.cell(row=i + 1, column=1).value
+                album_multiplier = sheet.cell(row=i + 1, column=2).value
+                albums[album_type] = album_multiplier
+        return albums
