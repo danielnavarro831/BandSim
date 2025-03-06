@@ -58,6 +58,9 @@ class Game:
         self.file_menu = Menu(self.menu)
         self.file_menu.add_command(label="Exit", command=self.app.quit)
         self.menu.add_cascade(label="File", menu=self.file_menu)
+        self.name_bar = Entry(self.app, width=35, justify="center")
+        self.band_money_label = Label(self.app, text="Band Money: $")
+        self.hype_label = Label(self.app, text="Album Hype: ")
         self.members_button = Button(self.app, text="Members", padx=35, pady=10, command=self.open_manage_members_menu)
         self.albums_button = Button(self.app, text="Albums", padx=34, pady=10, command=self.open_album_menu)
         self.perform_button = Button(self.app, text="Perform", padx=35, pady=10, command=self.open_performance_menu)
@@ -102,7 +105,6 @@ class Game:
         self.selected_genre.set(self.genres[0])
         self.genre_dropdown = OptionMenu(self.app, self.selected_genre, *self.genres)
 
-        self.name_bar = Entry(self.app, width=35, justify="center")
         self.album_label = Label(self.app, text="Album Title: ")
         band_name = DocReader.get_random_variable("Band")
         self.name_bar.insert(0, band_name)
@@ -157,12 +159,21 @@ class Game:
         band_name = self.band.band_name
         self.name_bar.insert(0, band_name)
         self.name_bar.grid(row=0, column=0, columnspan=2)
+        self.update_money_and_hype_labels()
+        self.band_money_label.grid(row=1, column=0)
+        self.hype_label.grid(row=1, column=1)
         self.members_button.grid(row=2, column=0, columnspan=2)
         self.albums_button.grid(row=3, column=0)
         self.perform_button.grid(row=3, column=1)
 
+    def update_money_and_hype_labels(self):
+        self.band_money_label["text"] = "Band Money: $" + str(self.band.money)
+        self.hype_label["text"] = "Album Hype: " + str(Location.get_album_hype_generated())
+
     def close_main_menu(self):
         self.name_bar.grid_remove()
+        self.band_money_label.grid_remove()
+        self.hype_label.grid_remove()
         self.members_button.grid_remove()
         self.albums_button.grid_remove()
         self.perform_button.grid_remove()
@@ -170,6 +181,9 @@ class Game:
     def open_manage_members_menu(self):
         self.close_all_menus()
         self.back_button["command"] = lambda: self.open_main_menu()
+        self.update_money_and_hype_labels()
+        self.band_money_label.grid(row=1, column=0)
+        self.hype_label.grid(row=1, column=1)
         self.back_button.grid(row=2, column=0)
         self.hire_button.grid(row=2, column=1)
         buttons = {1: self.member1_button, 2: self.member2_button, 3: self.member3_button, 4: self.member4_button,
@@ -197,6 +211,9 @@ class Game:
         if active_instrument == "Drums" or active_instrument == "Vocals":
             active_instrument = active_instrument[:-1]
         self.instrument_class_button["text"] = active_instrument + " class"
+        self.update_money_and_hype_labels()
+        self.band_money_label.grid(row=1, column=0)
+        self.hype_label.grid(row=1, column=1)
         self.back_button.grid(row=2, column=0)
         self.fire_button.grid(row=2, column=1)
         self.member_name_label.grid(row=3, column=0, columnspan=2)
@@ -225,6 +242,8 @@ class Game:
     def close_member_profile_menu(self):
         self.back_button.grid_remove()
         self.fire_button.grid_remove()
+        self.band_money_label.grid_remove()
+        self.hype_label.grid_remove()
         self.member_name_label.grid_remove()
         self.genre_specialty_label.grid_remove()
         self.salary_label.grid_remove()
@@ -245,6 +264,8 @@ class Game:
     def close_manage_members_menu(self):
         self.back_button.grid_remove()
         self.hire_button.grid_remove()
+        self.hype_label.grid_remove()
+        self.band_money_label.grid_remove()
         self.member1_button.grid_remove()
         self.member2_button.grid_remove()
         self.member3_button.grid_remove()
@@ -295,7 +316,10 @@ class Game:
         self.name_bar.grid(row=1, column=1)
         self.name_bar.delete(0, END)
         self.name_bar.insert(0, DocReader.get_random_variable("Band"))
-        self.back_button.grid(row=2, column=0)
+        self.update_money_and_hype_labels()
+        self.band_money_label.grid(row=2, column=0)
+        self.hype_label.grid(row=2, column=1)
+        self.back_button.grid(row=3, column=0)
         self.genre_dropdown.grid(row=4, column=0)
         self.album_types_dropdown.grid(row=4, column=1)
         self.make_album_button.grid(row=5, column=0, columnspan=2)
@@ -304,6 +328,8 @@ class Game:
         self.back_button.grid_remove()
         self.album_label.grid_remove()
         self.name_bar.grid_remove()
+        self.band_money_label.grid_remove()
+        self.hype_label.grid_remove()
         self.genre_dropdown.grid_remove()
         self.album_types_dropdown.grid_remove()
         self.make_album_button.grid_remove()
@@ -330,6 +356,9 @@ class Game:
         for location in locations.keys():
             button_map[i]["text"] = location
             i += 1
+        self.update_money_and_hype_labels()
+        self.band_money_label.grid(row=1, column=0)
+        self.hype_label.grid(row=1, column=1)
         self.back_button["command"] = self.open_main_menu
         self.back_button.grid(row=2, column=0)
         self.venue1_button.grid(row=3, column=0, columnspan=2)
@@ -338,6 +367,8 @@ class Game:
 
     def close_performance_menu(self):
         self.back_button.grid_remove()
+        self.hype_label.grid_remove()
+        self.band_money_label.grid_remove()
         self.venue1_button.grid_remove()
         self.venue2_button.grid_remove()
         self.venue3_button.grid_remove()
@@ -350,6 +381,9 @@ class Game:
         self.ticket_cost["text"] += str(location.ticket_cost)
         self.hype_generated["text"] += str(location.hype_generated)
         self.back_button["command"] = self.open_performance_menu
+        self.update_money_and_hype_labels()
+        self.band_money_label.grid(row=1, column=0)
+        self.hype_label.grid(row=1, column=1)
         self.back_button.grid(row=2, column=0)
         self.ticket_cost.grid(row=3, column=0, columnspan=2)
         self.hype_generated.grid(row=4, column=0, columnspan=2)
@@ -361,6 +395,8 @@ class Game:
         self.ticket_cost["text"] = "Ticket Price: $"
         self.venue_cost["text"] = "Venue Cost: $"
         self.hype_generated["text"] = "Hype: "
+        self.band_money_label.grid_remove()
+        self.hype_label.grid_remove()
         self.back_button.grid_remove()
         self.ticket_cost.grid_remove()
         self.hype_generated.grid_remove()
