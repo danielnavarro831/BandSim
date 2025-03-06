@@ -75,9 +75,16 @@ class Game:
         #                                       Member Profile Menu
         ################################################################################################################
         self.fire_button = Button(self.app, text="fire", padx=35, pady=10)
-        self.theory_class_button = Button(self.app, text="Music Theory Class", padx=35, pady=10, command=lambda: self.band.take_class(Game._active_member, "Music Theory"))
-        self.performance_class_button = Button(self.app, text="Performance Class", padx=35, pady=10, command=lambda: self.band.take_class(Game._active_member, "Performance"))
-        self.instrument_class_button = Button(self.app, text="Instrument Class", padx=35, pady=10, command=lambda: self.band.take_class(self._active_member, self.get_active_member_instrument()))
+        self.member_name_label = Label(self.app, text="")
+        self.genre_specialty_label = Label(self.app, text="")
+        self.salary_label = Label(self.app, text="")
+        self.active_instrument_label = Label(self.app, text="")
+        self.performance_label = Label(self.app, text="")
+        self.theory_label = Label(self.app, text="")
+        self.stamina_label = Label(self.app, text="")
+        self.theory_class_button = Button(self.app, text="Music Theory Class", padx=35, pady=10, command=lambda: self.take_class(Game._active_member, "Music Theory"))
+        self.performance_class_button = Button(self.app, text="Performance Class", padx=35, pady=10, command=lambda: self.take_class(Game._active_member, "Performance"))
+        self.instrument_class_button = Button(self.app, text="Instrument Class", padx=35, pady=10, command=lambda: self.take_class(Game._active_member, self.get_active_member_instrument()))
         self.change_instrument_button = Button(self.app, text="Change Instrument", padx=35, pady=10, command=self.open_change_instrument_menu)
         ################################################################################################################
         #                                       Change Instrument Menu
@@ -183,26 +190,57 @@ class Game:
     def open_member_profile_menu(self, member: str):
         Game.set_active_member(member)
         active_member = self.band.members[member]
+        self.set_member_profile_labels(active_member)
         active_instrument = active_member.get_active_instrument()
         self.close_all_menus()
         self.back_button["command"] = lambda: self.open_manage_members_menu()
-        self.back_button.grid(row=2, column=0)
-        self.fire_button.grid(row=2, column=1)
-        self.theory_class_button.grid(row=3, column=0)
-        self.performance_class_button.grid(row=3, column=1)
         if active_instrument == "Drums" or active_instrument == "Vocals":
             active_instrument = active_instrument[:-1]
         self.instrument_class_button["text"] = active_instrument + " class"
-        self.instrument_class_button.grid(row=4, column=0)
-        self.change_instrument_button.grid(row=4, column=1)
+        self.back_button.grid(row=2, column=0)
+        self.fire_button.grid(row=2, column=1)
+        self.member_name_label.grid(row=3, column=0, columnspan=2)
+        self.genre_specialty_label.grid(row=4, column=0)
+        self.salary_label.grid(row=4, column=1)
+        self.change_instrument_button.grid(row=5, column=0, columnspan=2)
+        self.active_instrument_label.grid(row=6, column=0)
+        self.instrument_class_button.grid(row=6, column=1)
+        self.performance_label.grid(row=7, column=0)
+        self.performance_class_button.grid(row=7, column=1)
+        self.theory_label.grid(row=8, column=0)
+        self.theory_class_button.grid(row=8, column=1)
+        self.stamina_label.grid(row=9)
+
+    def set_member_profile_labels(self, member: Member):
+        self.member_name_label["text"] = member.name
+        self.genre_specialty_label["text"] = "Genre Specialty: " + member.genre_specialty
+        self.salary_label["text"] = "Salary: $" + str(member.stats["Salary"])
+        active_instrument = member.get_active_instrument()
+        instrument_level = member.instrument_stats[active_instrument]
+        self.active_instrument_label["text"] = "Instrument: " + active_instrument + " (" + str(instrument_level) + ")"
+        self.performance_label["text"] = "Performance: " + str(member.stats["Performance"])
+        self.theory_label["text"] = "Song Writing: " + str(member.stats["Music Theory"])
+        self.stamina_label["text"] = ""
 
     def close_member_profile_menu(self):
         self.back_button.grid_remove()
         self.fire_button.grid_remove()
+        self.member_name_label.grid_remove()
+        self.genre_specialty_label.grid_remove()
+        self.salary_label.grid_remove()
+        self.active_instrument_label.grid_remove()
+        self.performance_label.grid_remove()
+        self.theory_label.grid_remove()
+        self.stamina_label.grid_remove()
         self.theory_class_button.grid_remove()
         self.performance_class_button.grid_remove()
         self.instrument_class_button.grid_remove()
         self.change_instrument_button.grid_remove()
+
+    def take_class(self, member_name: str, stat: str):
+        self.band.take_class(member_name, stat)
+        member = self.band.members[member_name]
+        self.set_member_profile_labels(member)
 
     def close_manage_members_menu(self):
         self.back_button.grid_remove()
@@ -223,6 +261,8 @@ class Game:
                    "Vocals": self.vocals_button, "Keyboard": self.keyboard_button}
         row = 3
         for button in buttons.keys():
+            instrument_level = active_member.instrument_stats[button]
+            buttons[button]["text"] += " (" + str(instrument_level) + ")"
             if button == active_instrument:
                 buttons[button]["state"] = "disabled"
             else:
@@ -231,6 +271,10 @@ class Game:
             row += 1
 
     def close_change_instrument_menu(self):
+        buttons = {"Guitar": self.guitar_button, "Bass": self.bass_button, "Drums": self.drums_button,
+                   "Vocals": self.vocals_button, "Keyboard": self.keyboard_button}
+        for button in buttons.keys():
+            buttons[button]["text"] = button
         self.back_button.grid_remove()
         self.guitar_button.grid_remove()
         self.bass_button.grid_remove()
