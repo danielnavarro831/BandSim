@@ -37,14 +37,18 @@ class Band:
         self.members = {}  # Dict of "Member Name": Member object
         self.albums = {}  # Dict of "Album Title": Album Object
         self.fame_level = 0
-        self.money = 0
+        self.money = 20000
 
     def add_member(self, member: Member):
         member_name = member.name
         self.members[member_name] = member
 
-    def remove_member(self, member_name: str):
+    def remove_member(self, member_name: str, member_quit=False):
         del self.members[member_name]
+        if member_quit:
+            print(member_name + " quit the band due to stress!")
+        else:
+            print(self.band_name + " decided to part ways with " + member_name)
 
     def check_if_album_name_exists(self, name: str):
         if name in self.albums.keys():
@@ -165,6 +169,25 @@ class Band:
                 band_member.increase_stat("Fame", 1)
                 self.members[member] = band_member
                 print(str(member) + "'s Fame increased!")
+
+    def decrease_band_stamina(self, tour_length: int):
+        quitting_members = []
+        for member in self.members.keys():
+            band_member = self.members[member]
+            exhaustion = random.randint(1, 5)
+            exhaustion *= 5
+            if tour_length:
+                exhaustion *= tour_length
+            band_member.stats["Stamina"] -= exhaustion
+            if band_member.stats["Stamina"] <= 0:
+                quitting_members.append(member)
+            elif band_member.stats["Stamina"] <= 25:
+                print(member + " is feeling stressed out!")
+            self.members[member] = band_member
+
+    def quit_band(self, quitters: list):
+        for i in range(len(quitters)):
+            self.remove_member(quitters[i])
 
     def take_class(self, member_name: str, stat: str):
         band_member = self.members[member_name]

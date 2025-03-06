@@ -4,12 +4,12 @@ from tkinter import *
 from Game.Band import Band
 from Game.Location import Location
 from Game.Album import Album
-import os
 
 
 class Game:
 
     _active_member = ""
+    _active_location = ""
 
     @classmethod
     def set_active_member(cls, active_member_name: str):
@@ -18,6 +18,16 @@ class Game:
     @classmethod
     def clear_active_member(cls):
         Game._active_member = ""
+
+    @classmethod
+    def set_active_location(cls, location_name: str):
+        Game._active_location = location_name
+        print("Active location set to: " + location_name)
+
+    @classmethod
+    def clear_active_location(cls):
+        Game._active_location = ""
+        print("Active location removed")
 
     @classmethod
     def generate_new_band(cls):
@@ -50,7 +60,7 @@ class Game:
         self.menu.add_cascade(label="File", menu=self.file_menu)
         self.members_button = Button(self.app, text="Members", padx=35, pady=10, command=self.open_manage_members_menu)
         self.albums_button = Button(self.app, text="Albums", padx=34, pady=10, command=self.open_album_menu)
-        self.perform_button = Button(self.app, text="Perform", padx=35, pady=10)
+        self.perform_button = Button(self.app, text="Perform", padx=35, pady=10, command=self.open_performance_menu)
         ################################################################################################################
         #                                       Member Management Menu
         ################################################################################################################
@@ -97,11 +107,25 @@ class Game:
 
         self.make_album_button = Button(self.app, text="Make Album", padx=35, pady=10, command=self.make_album)
         ################################################################################################################
+        #                                           Performance Menu
+        ################################################################################################################
+        self.venue1_button = Button(self.app, text="", padx=35, pady=10, command=lambda: self.open_location_menu(self.venue1_button["text"]))
+        self.venue2_button = Button(self.app, text="", padx=35, pady=10, command=lambda: self.open_location_menu(self.venue2_button["text"]))
+        self.venue3_button = Button(self.app, text="", padx=35, pady=10, command=lambda: self.open_location_menu(self.venue3_button["text"]))
+        ################################################################################################################
+        #                                            Location Menu
+        ################################################################################################################
+        self.book_button = Button(self.app, text="Book Venue", padx=35, pady=10, command=self.perform_concert)
+        self.ticket_cost = Label(self.app, text="Ticket Price: $")
+        self.venue_cost = Label(self.app, text="Venue Cost: $")
+        self.hype_generated = Label(self.app, text="Hype: ")
+        ################################################################################################################
         #                                             Launch App
         ################################################################################################################
         self.version_label.grid(row=10, column=0, columnspan=2, sticky=W+E)
         self.band = Game.generate_new_band()
         self.band.band_name = band_name
+        Location.create_available_locations()
         self.open_main_menu()
         self.app.mainloop()  # Must be last line
 
@@ -116,6 +140,8 @@ class Game:
         self.close_member_profile_menu()
         self.close_change_instrument_menu()
         self.close_album_menu()
+        self.close_performance_menu()
+        self.close_location_menu()
 
     def open_main_menu(self):
         self.close_all_menus()
@@ -248,9 +274,71 @@ class Game:
             print("Genre: " + genre)
             album_type = str(self.selected_album_type.get())
             print("Album Type: " + album_type)
-            hype = Location.get_hype_generated()
+            hype = Location.get_album_hype_generated()
             print("Hype Generated: " + str(hype))
             self.band.make_album(album_name, genre, hype, album_type)
+
+    def open_performance_menu(self):
+        self.close_all_menus()
+        locations = Location.get_available_locations()
+        button_map = {1: self.venue1_button, 2: self.venue2_button, 3: self.venue3_button}
+        i = 1
+        for location in locations.keys():
+            button_map[i]["text"] = location
+            i += 1
+        self.back_button["command"] = self.open_main_menu
+        self.back_button.grid(row=2, column=0)
+        self.venue1_button.grid(row=3, column=0, columnspan=2)
+        self.venue2_button.grid(row=4, column=0, columnspan=2)
+        self.venue3_button.grid(row=5, column=0, columnspan=2)
+
+    def close_performance_menu(self):
+        self.back_button.grid_remove()
+        self.venue1_button.grid_remove()
+        self.venue2_button.grid_remove()
+        self.venue3_button.grid_remove()
+
+    def open_location_menu(self, location_name: str):
+        self.close_all_menus()
+        Game.set_active_location(location_name)
+        location = Location.get_specific_location(Game._active_location)
+        self.venue_cost["text"] += str(location.venue_cost)
+        self.ticket_cost["text"] += str(location.ticket_cost)
+        self.hype_generated["text"] += str(location.hype_generated)
+        self.back_button["command"] = self.open_performance_menu
+        self.back_button.grid(row=2, column=0)
+        self.ticket_cost.grid(row=3, column=0, columnspan=2)
+        self.hype_generated.grid(row=4, column=0, columnspan=2)
+        self.venue_cost.grid(row=5, column=0, columnspan=2)
+        self.book_button.grid(row=6, column=0, columnspan=2)
+
+    def close_location_menu(self):
+        self.clear_active_location()
+        self.ticket_cost["text"] = "Ticket Price: $"
+        self.venue_cost["text"] = "Venue Cost: $"
+        self.hype_generated["text"] = "Hype: "
+        self.back_button.grid_remove()
+        self.ticket_cost.grid_remove()
+        self.hype_generated.grid_remove()
+        self.venue_cost.grid_remove()
+        self.book_button.grid_remove()
+
+    def perform_concert(self):
+        fame = Band.calculate_fame_level(self.band)
+        print("Fame level: " + str(fame))
+        venue = Location.get_specific_location(Game._active_location)
+        print("Venue: " + str(venue.location_name))
+        print("Obj test: " + str(venue))
+        income = venue.sell_tickets(fame)
+        print("Income generated: " + str(income))
+        self.band.increase_money(income)
+        venue.generate_hype(self.band.get_group_stat("Performance"))
+        print("Hype Generated: " + str(venue.hype_generated))
+        Location.log_performance_hype(venue)
+        tour_length = len(Location.get_hype_tracker())
+        print("Tour Length: " + str(tour_length))
+        self.band.decrease_band_stamina(tour_length)
+        print("Band Stamina decreased")
 
 
 game = Game()
