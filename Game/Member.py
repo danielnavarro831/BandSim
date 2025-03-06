@@ -29,7 +29,8 @@ class Member:
         for stat in stats.keys():
             value = random.randint(level, level*3)
             stats[stat] = value
-        stats["Stamina"] = 50 + (50 * level)
+        stats["MaxStamina"] = 50 + (50 * level)
+        stats["Stamina"] = stats["MaxStamina"]
         stats["Salary"] = 1000 * level
         instrument_stat = random.randint(level, level*3)
         i_stat = {instrument: instrument_stat}
@@ -37,11 +38,11 @@ class Member:
         return member_stats
 
     def __init__(self, starting_stats=None):
-        self.name = ""  # Create method to generate a random name
+        self.name = ""
         self.genre_specialty = ""
         self.active_instrument = {"Guitar": False, "Drums": False, "Bass": False, "Vocals": False, "Keyboard": False}
         self.instrument_stats = {"Guitar": 0, "Drums": 0, "Bass": 0, "Vocals": 0, "Keyboard": 0}
-        self.stats = {"Salary": 0, "Music Theory": 0, "Performance": 0, "Stamina": 0, "Fame": 0}  # Create method to generate start values
+        self.stats = {"Salary": 0, "Music Theory": 0, "Performance": 0, "Stamina": 0, "MaxStamina": 0, "Fame": 0}
         if starting_stats:
             self.set_starting_stats(starting_stats)
 

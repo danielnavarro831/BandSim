@@ -220,7 +220,7 @@ class Game:
         self.active_instrument_label["text"] = "Instrument: " + active_instrument + " (" + str(instrument_level) + ")"
         self.performance_label["text"] = "Performance: " + str(member.stats["Performance"])
         self.theory_label["text"] = "Song Writing: " + str(member.stats["Music Theory"])
-        self.stamina_label["text"] = ""
+        self.stamina_label["text"] = "Stamina: " + str(member.stats["Stamina"]) + "/" + str(member.stats["MaxStamina"])
 
     def close_member_profile_menu(self):
         self.back_button.grid_remove()
@@ -383,6 +383,7 @@ class Game:
         print("Tour Length: " + str(tour_length))
         self.band.decrease_band_stamina(tour_length)
         print("Band Stamina decreased")
+        self.open_main_menu()
 
 
 game = Game()

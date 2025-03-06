@@ -91,6 +91,12 @@ class Location:
                 location_name += " " + str(i)
                 i += 1
         Location._hype_tracker[location_name] = location
+        Location.update_available_locations(location_name)
+
+    @classmethod
+    def update_available_locations(cls, location_name: str):
+        del Location._available_locations[location_name]
+        Location.create_random_location()
 
     @classmethod
     def get_album_hype_generated(cls):
