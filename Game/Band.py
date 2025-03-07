@@ -5,17 +5,17 @@ import random
 
 class Band:
     _negative_money = False
-    _base_stat_increase_cost = 1000
+    _base_class_cost = 1000
     _base_salary = 1000
 
     @classmethod
-    def get_base_stat_increase_cost(cls):
-        return Band._base_stat_increase_cost
+    def get_base_class_cost(cls):
+        return Band._base_class_cost
 
     @classmethod
     def get_cost_of_stat_increase(cls, current_stat_value: int):
-        base_cost = Band.get_base_stat_increase_cost()
-        cost = current_stat_value * base_cost
+        base_cost = Band.get_base_class_cost()
+        cost = (current_stat_value + 1) * base_cost
         return cost
 
     @classmethod
@@ -148,6 +148,7 @@ class Band:
         album = Album(album_name, genre, album_type)
         album_credits = self.set_album_credits()
         album.set_album_credits(album_credits)
+        print(str(album.album_credits))
         fame = self.calculate_fame_level()
         if fame <= 0:
             fame = 1
@@ -201,7 +202,6 @@ class Band:
             band_member.increase_instrument_stat(stat, 1)
         band_member.increase_stat("Salary", 1000)
         self.members[member_name] = band_member
-        self.decrease_money(cost)
         print(member_name + " leveled up their " + stat + " to " + str(member_current_stat_value + 1) + "!")
         print(member_name + "'s Salary increased to " + str(band_member.stats["Salary"]))
 

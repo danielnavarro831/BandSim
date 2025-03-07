@@ -127,3 +127,12 @@ class Member:
         if new_value < 0:
             new_value = 0
         self.set_stat(stat_name, new_value)
+
+    def check_current_stat_value(self, stat: str):
+        if stat in self.stats.keys():
+            return self.stats[stat]
+        elif stat in self.instrument_stats.keys():
+            return self.instrument_stats[stat]
+        else:
+            print("No stat found: " + stat)
+            return

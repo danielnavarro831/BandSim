@@ -222,13 +222,13 @@ class Game:
     def open_member_profile_menu(self, member: str):
         Game.set_active_member(member)
         active_member = self.band.members[member]
-        self.set_member_profile_labels(active_member)
         active_instrument = active_member.get_active_instrument()
         self.close_all_menus()
         self.back_button["command"] = lambda: self.open_manage_members_menu()
         if active_instrument == "Drums" or active_instrument == "Vocals":
             active_instrument = active_instrument[:-1]
         self.instrument_class_button["text"] = active_instrument + " class"
+        self.set_member_profile_labels(active_member)
         self.update_money_and_hype_labels()
         self.band_money_label.grid(row=1, column=0)
         self.hype_label.grid(row=1, column=1)
@@ -256,6 +256,15 @@ class Game:
         self.performance_label["text"] = "Performance: " + str(member.stats["Performance"])
         self.theory_label["text"] = "Song Writing: " + str(member.stats["Music Theory"])
         self.stamina_label["text"] = "Stamina: " + str(member.stats["Stamina"]) + "/" + str(member.stats["MaxStamina"])
+        self.set_member_profile_button_texts(member)
+
+    def set_member_profile_button_texts(self, member: Member):
+        performance_cost = self.band.get_cost_of_stat_increase(member.stats["Performance"])
+        self.performance_class_button["text"] = "Performance Class \n $" + str(performance_cost)
+        theory_cost = self.band.get_cost_of_stat_increase(member.stats["Music Theory"])
+        self.theory_class_button["text"] = "Music Theory Class \n $" + str(theory_cost)
+        instrument_cost = self.band.get_cost_of_stat_increase(member.instrument_stats[member.get_active_instrument()])
+        self.instrument_class_button["text"] = member.get_active_instrument() + "Class \n $" + str(instrument_cost)
 
     def close_member_profile_menu(self):
         self.back_button.grid_remove()
@@ -275,9 +284,19 @@ class Game:
         self.change_instrument_button.grid_remove()
 
     def take_class(self, member_name: str, stat: str):
+        band_member = self.band.members[member_name]
+        stat_value = band_member.check_current_stat_value(stat)
+        class_cost = Band.get_cost_of_stat_increase(stat_value)
+        print("Class cost: " + str(class_cost))
+        if not self.check_band_funds(class_cost):
+            print("Not enough funds")
+            return
         self.band.take_class(member_name, stat)
         member = self.band.members[member_name]
         self.set_member_profile_labels(member)
+        self.band.decrease_money(class_cost)
+        self.update_money_and_hype_labels()
+        self.set_member_profile_button_texts(member)
 
     def close_manage_members_menu(self):
         self.back_button.grid_remove()
@@ -355,6 +374,11 @@ class Game:
         self.make_album_button.grid_remove()
 
     def make_album(self):
+        album_type = str(self.selected_album_type.get())
+        album_cost = Album.get_album_cost(album_type)
+        if not self.check_band_funds(album_cost):
+            print("Not enough band funds!")
+            return
         album_name = self.name_bar.get()
         if self.band.check_if_album_name_exists(album_name):
             print("Album title already used")
@@ -362,7 +386,6 @@ class Game:
             print("Album Name: " + album_name)
             genre = str(self.selected_genre.get())
             print("Genre: " + genre)
-            album_type = str(self.selected_album_type.get())
             print("Album Type: " + album_type)
             hype = Location.get_album_hype_generated()
             print("Hype Generated: " + str(hype))
@@ -370,6 +393,13 @@ class Game:
             self.open_discography_menu()
             self.selected_album.set(self.discography[-1])
             self.update_discography_labels()
+            self.band.decrease_money(album_cost)
+            self.update_money_and_hype_labels()
+
+    def check_band_funds(self, cost: int):
+        if self.band.money >= cost:
+            return True
+        return False
 
     def open_discography_menu(self):
         self.close_all_menus()
@@ -406,7 +436,7 @@ class Game:
         self.discography_genre_label["text"] = "Genre: "
         self.discography_ratings_label["text"] = "Rating: "
         self.discography_num_sold_label["text"] = "Sold: "
-        self.discography_credits_label["text"] = "Credits: "
+        self.discography_credits_label["text"] = "Credits: \n"
         if album_name == "--":
             print("Returning")
             return
@@ -417,6 +447,7 @@ class Game:
             self.discography_year_label["text"] += str(album.year_released)
             self.discography_ratings_label["text"] += str(album.rating["Overall"]) + "/100"
             self.discography_num_sold_label["text"] += str(album.num_sold)
+            self.discography_credits_label["text"] += album.stringify_credits()
 
     def close_discography_menu(self):
         self.back_button.grid_remove()
