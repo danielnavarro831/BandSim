@@ -20,7 +20,6 @@ class Album:
         self.album_credits = {}
         self.track_titles = []
         self.rating = {"Music Theory": 0, "Performance": 0, "Overall": 0}
-        self.release_method = ""
         self.num_sold = 0
         self.year_released = 0
 
@@ -39,9 +38,6 @@ class Album:
 
     def set_rating(self, category: str, value: int):
         self.rating[category] = value
-
-    def set_release_method(self, method: str):
-        self.release_method = method
 
     def increase_num_sold(self, amount: int):
         self.num_sold += amount

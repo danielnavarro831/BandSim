@@ -204,3 +204,12 @@ class Band:
         self.decrease_money(cost)
         print(member_name + " leveled up their " + stat + " to " + str(member_current_stat_value + 1) + "!")
         print(member_name + "'s Salary increased to " + str(band_member.stats["Salary"]))
+
+    def get_discography(self):
+        discography = []
+        for album in self.albums.keys():
+            discography.append(album)
+        return discography
+
+    def get_album(self, album_name: str):
+        return self.albums[album_name]

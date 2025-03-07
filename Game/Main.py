@@ -49,6 +49,10 @@ class Game:
         # self.app.iconbitmap("./nine_lives_32.ico") -- icon
         self.app.resizable(False, False)
         self.app.title("Band Simulator")
+        self.band = Game.generate_new_band()
+        band_name = DocReader.get_random_variable("Band")
+        self.band.band_name = band_name
+        Location.create_available_locations()
         ################################################################################################################
         #                                               Main Menu
         ################################################################################################################
@@ -113,8 +117,24 @@ class Game:
         self.album_types = Album.get_album_types()
         self.selected_album_type.set(self.album_types[0])
         self.album_types_dropdown = OptionMenu(self.app, self.selected_album_type, *self.album_types)
+        self.discography_button = Button(self.app, text="Discography", padx=35, pady=10, command=self.open_discography_menu)
 
         self.make_album_button = Button(self.app, text="Make Album", padx=35, pady=10, command=self.make_album)
+        ################################################################################################################
+        #                                          Discography Menu
+        ################################################################################################################
+        self.discography = ["--"]
+        self.selected_album = StringVar(master=self.app)
+        self.selected_album.set(self.discography[0])
+        self.view_button = Button(self.app, text="View", padx=35, pady=10, command=self.update_discography_labels)
+        self.discography_dropdown = OptionMenu(self.app, self.selected_album, *self.discography)
+        self.discography_album_title_label = Label(self.app, text="")
+        self.discography_genre_label = Label(self.app, text="")
+        self.discography_release_label = Label(self.app, text="")
+        self.discography_credits_label = Label(self.app, text="")
+        self.discography_ratings_label = Label(self.app, text="")
+        self.discography_num_sold_label = Label(self.app, text="")
+        self.discography_year_label = Label(self.app, text="")
         ################################################################################################################
         #                                           Performance Menu
         ################################################################################################################
@@ -132,9 +152,6 @@ class Game:
         #                                             Launch App
         ################################################################################################################
         self.version_label.grid(row=10, column=0, columnspan=2, sticky=W+E)
-        self.band = Game.generate_new_band()
-        self.band.band_name = band_name
-        Location.create_available_locations()
         self.open_main_menu()
         self.app.mainloop()  # Must be last line
 
@@ -151,6 +168,7 @@ class Game:
         self.close_album_menu()
         self.close_performance_menu()
         self.close_location_menu()
+        self.close_discography_menu()
 
     def open_main_menu(self):
         self.close_all_menus()
@@ -320,12 +338,14 @@ class Game:
         self.band_money_label.grid(row=2, column=0)
         self.hype_label.grid(row=2, column=1)
         self.back_button.grid(row=3, column=0)
+        self.discography_button.grid(row=3, column=1)
         self.genre_dropdown.grid(row=4, column=0)
         self.album_types_dropdown.grid(row=4, column=1)
         self.make_album_button.grid(row=5, column=0, columnspan=2)
 
     def close_album_menu(self):
         self.back_button.grid_remove()
+        self.discography_button.grid_remove()
         self.album_label.grid_remove()
         self.name_bar.grid_remove()
         self.band_money_label.grid_remove()
@@ -347,6 +367,67 @@ class Game:
             hype = Location.get_album_hype_generated()
             print("Hype Generated: " + str(hype))
             self.band.make_album(album_name, genre, hype, album_type)
+            self.open_discography_menu()
+            self.selected_album.set(self.discography[-1])
+            self.update_discography_labels()
+
+    def open_discography_menu(self):
+        self.close_all_menus()
+        self.back_button["command"] = self.open_album_menu
+        self.back_button.grid(row=1, column=0)
+        self.discography = self.band.get_discography()
+        self.discography_dropdown["menu"].delete(0, "end")
+        for item in self.discography:
+            print("doing the thing")
+            self.discography_dropdown["menu"].add_command(
+                label=item, command=lambda value=item: self.selected_album.set(value)
+            )
+            print("Problem not here")
+        self.discography_album_title_label["text"] = "Album Title: "
+        self.discography_year_label["text"] = "Year: "
+        self.discography_genre_label["text"] = "Genre: "
+        self.discography_ratings_label["text"] = "Rating: "
+        self.discography_num_sold_label["text"] = "Sold: "
+        self.discography_credits_label["text"] = "Credits: "
+        self.discography_dropdown.grid(row=2, column=0)
+        self.view_button.grid(row=2, column=1)
+        self.discography_album_title_label.grid(row=3, column=0, columnspan=2)
+        self.discography_genre_label.grid(row=4, column=0)
+        self.discography_year_label.grid(row=4, column=1)
+        self.discography_ratings_label.grid(row=5, column=0)
+        self.discography_num_sold_label.grid(row=5, column=1)
+        self.discography_credits_label.grid(row=6, column=0, columnspan=2)
+
+    def update_discography_labels(self):
+        print("attempting to get")
+        album_name = self.selected_album.get()
+        self.discography_album_title_label["text"] = "Album Title: "
+        self.discography_year_label["text"] = "Year: "
+        self.discography_genre_label["text"] = "Genre: "
+        self.discography_ratings_label["text"] = "Rating: "
+        self.discography_num_sold_label["text"] = "Sold: "
+        self.discography_credits_label["text"] = "Credits: "
+        if album_name == "--":
+            print("Returning")
+            return
+        else:
+            album = self.band.get_album(album_name)
+            self.discography_album_title_label["text"] += album_name
+            self.discography_genre_label["text"] += album.genre
+            self.discography_year_label["text"] += str(album.year_released)
+            self.discography_ratings_label["text"] += str(album.rating["Overall"]) + "/100"
+            self.discography_num_sold_label["text"] += str(album.num_sold)
+
+    def close_discography_menu(self):
+        self.back_button.grid_remove()
+        self.discography_dropdown.grid_remove()
+        self.view_button.grid_remove()
+        self.discography_album_title_label.grid_remove()
+        self.discography_year_label.grid_remove()
+        self.discography_genre_label.grid_remove()
+        self.discography_ratings_label.grid_remove()
+        self.discography_credits_label.grid_remove()
+        self.discography_num_sold_label.grid_remove()
 
     def open_performance_menu(self):
         self.close_all_menus()
