@@ -85,13 +85,16 @@ class Location:
     @classmethod
     def log_performance_hype(cls, location: 'Location'):
         location_name = location.location_name
+        num_chars = len(location_name)
         if location_name in Location._hype_tracker.keys():
             i = 2
             while location_name in Location._hype_tracker.keys():
                 location_name += " " + str(i)
                 i += 1
-        Location._hype_tracker[location_name] = location
-        Location.update_available_locations(location_name)
+        Location._hype_tracker[location_name[:num_chars]] = location
+        print("Location name: " + str(location_name))
+        print("Upating: " + str(location_name[:num_chars]))
+        Location.update_available_locations(location_name[:num_chars])
 
     @classmethod
     def update_available_locations(cls, location_name: str):

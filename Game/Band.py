@@ -37,7 +37,7 @@ class Band:
         self.members = {}  # Dict of "Member Name": Member object
         self.albums = {}  # Dict of "Album Title": Album Object
         self.fame_level = 0
-        self.money = 20000
+        self.money = 2000000000
 
     def add_member(self, member: Member):
         member_name = member.name
