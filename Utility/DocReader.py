@@ -36,13 +36,19 @@ class DocReader:
         variable_text = ""
         var_type_list = DocReader.get_var_type_sheets(var_type)  # ["First Name", "Last Name"] excel page names
         book = openpyxl.load_workbook(DocReader._vars_location)
+        plural = False
         for i in range(len(var_type_list)):
             page = var_type_list[i]
             sheet = book[page]
             x = random.randint(1, sheet.max_row)
             variable_text += str(sheet.cell(row=x, column=1).value)
+            if var_type == "Band" and i == 0:
+                if sheet.cell(row=x, column=2).value:
+                    plural = True
             if i < len(var_type_list) - 1:
                 variable_text += " "
+        if plural:
+            variable_text += "s"
         return variable_text
 
     @classmethod
