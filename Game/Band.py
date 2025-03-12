@@ -1,5 +1,6 @@
 from Game.Member import Member
 from Game.Album import Album
+from Utility.DocReader import DocReader
 import random
 
 
@@ -32,12 +33,21 @@ class Band:
     def get_negative_money(cls):
         return Band._negative_money
 
+    @classmethod
+    def get_new_members(cls, level=1):
+        for_hire = {}
+        for i in range(0, 3):
+            stats = Member.get_starting_stats(level)
+            member = Member(stats)
+            for_hire[member.name] = member
+        return for_hire
+
     def __init__(self):
         self.band_name = ""
         self.members = {}  # Dict of "Member Name": Member object
         self.albums = {}  # Dict of "Album Title": Album Object
         self.fame_level = 0
-        self.money = 2000000000
+        self.money = 20000
 
     def add_member(self, member: Member):
         member_name = member.name

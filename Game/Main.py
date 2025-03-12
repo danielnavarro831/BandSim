@@ -10,6 +10,7 @@ class Game:
 
     _active_member = ""
     _active_location = ""
+    _members_for_hire = {}
 
     @classmethod
     def set_active_member(cls, active_member_name: str):
@@ -77,9 +78,21 @@ class Game:
         self.member3_button = Button(self.app, text="Member3", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member3_button["text"]))
         self.member4_button = Button(self.app, text="Member4", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member4_button["text"]))
         self.member5_button = Button(self.app, text="Member5", padx=35, pady=10, command=lambda: self.open_member_profile_menu(self.member5_button["text"]))
-        self.hire_button = Button(self.app, text="Hire", padx=35, pady=10)
+        self.hire_button = Button(self.app, text="Hire", padx=35, pady=10, command=self.open_hire_members_menu)
         ################################################################################################################
-        #                                       Member Profile Menu
+        #                                          Hire Members Menu
+        ################################################################################################################
+        self.flyers_button = Button(self.app, text="Post Flyers", padx=35, pady=10, command=self.open_members_for_hire_menu)
+        self.online_ad_button = Button(self.app, text="Post Online Ad", padx=35, pady=10, command=lambda: self.open_members_for_hire_menu(2))
+        self.hire_agent_button = Button(self.app, text="Hire Talent Agent", padx=35, pady=10, command=lambda: self.open_members_for_hire_menu(3))
+        ################################################################################################################
+        #                                      Applicants For Hire Menu
+        ################################################################################################################
+        self.applicant1_button = Button(self.app, text="", padx=35, pady=10, command=lambda: self.open_applicant_profile(self.applicant1_button["text"]))
+        self.applicant2_button = Button(self.app, text="", padx=35, pady=10, command=lambda: self.open_applicant_profile(self.applicant2_button["text"]))
+        self.applicant3_button = Button(self.app, text="", padx=35, pady=10, command=lambda: self.open_applicant_profile(self.applicant3_button["text"]))
+        ################################################################################################################
+        #                                        Member Profile Menu
         ################################################################################################################
         self.fire_button = Button(self.app, text="fire", padx=35, pady=10)
         self.member_name_label = Label(self.app, text="")
@@ -169,6 +182,9 @@ class Game:
         self.close_performance_menu()
         self.close_location_menu()
         self.close_discography_menu()
+        self.close_hire_members_menu()
+        self.close_members_for_hire_menu()
+        self.close_applicant_profile()
 
     def open_main_menu(self):
         self.close_all_menus()
@@ -282,6 +298,73 @@ class Game:
         self.performance_class_button.grid_remove()
         self.instrument_class_button.grid_remove()
         self.change_instrument_button.grid_remove()
+
+    def open_hire_members_menu(self):
+        self.close_all_menus()
+        self.back_button.grid(row=2, column=0)
+        self.back_button["command"] = self.open_manage_members_menu
+        self.flyers_button.grid(row=3, column=0, columnspan=2)
+        self.online_ad_button.grid(row=4, column=0, columnspan=2)
+        self.hire_agent_button.grid(row=5, column=0, columnspan=2)
+
+    def close_hire_members_menu(self):
+        self.back_button.grid_remove()
+        self.flyers_button.grid_remove()
+        self.online_ad_button.grid_remove()
+        self.hire_agent_button.grid_remove()
+
+    def open_members_for_hire_menu(self, level=1):
+        self.close_all_menus()
+        members_for_hire = Band.get_new_members(level)
+        Game._members_for_hire = members_for_hire
+        buttons = {1: self.applicant1_button, 2: self.applicant2_button, 3: self.applicant3_button}
+        i = 1
+        for member in members_for_hire.keys():
+            applicant = members_for_hire[member]
+            buttons[i]["text"] = applicant.name
+            i += 1
+        self.back_button.grid(row=2, column=0)
+        self.back_button["command"] = self.open_hire_members_menu
+        self.applicant1_button.grid(row=3, column=0)
+        self.applicant2_button.grid(row=4, column=0)
+        self.applicant3_button.grid(row=5, column=0)
+
+    def close_members_for_hire_menu(self):
+        self.back_button.grid_remove()
+        self.applicant1_button.grid_remove()
+        self.applicant2_button.grid_remove()
+        self.applicant3_button.grid_remove()
+
+    def open_applicant_profile(self, applicant_name: str):
+        applicant = Game._members_for_hire[applicant_name]
+        self.close_all_menus()
+        self.back_button.grid(row=2, column=0)
+        self.hire_button.grid(row=2, column=1)
+        # self.hire_button["command"] = ""
+        self.set_member_profile_labels(applicant)
+        self.update_money_and_hype_labels()
+        self.band_money_label.grid(row=1, column=0)
+        self.hype_label.grid(row=1, column=1)
+        self.back_button.grid(row=2, column=0)
+        self.member_name_label.grid(row=3, column=0, columnspan=2)
+        self.genre_specialty_label.grid(row=4, column=0)
+        self.salary_label.grid(row=4, column=1)
+        self.active_instrument_label.grid(row=6, column=0)
+        self.performance_label.grid(row=7, column=0)
+        self.theory_label.grid(row=8, column=0)
+
+    def close_applicant_profile(self):
+        self.back_button.grid_remove()
+        self.hire_button.grid_remove()
+        self.band_money_label.grid_remove()
+        self.hype_label.grid_remove()
+        self.member_name_label.grid_remove()
+        self.genre_specialty_label.grid_remove()
+        self.salary_label.grid_remove()
+        self.active_instrument_label.grid_remove()
+        self.performance_label.grid_remove()
+        self.theory_label.grid_remove()
+
 
     def take_class(self, member_name: str, stat: str):
         band_member = self.band.members[member_name]
