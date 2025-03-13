@@ -101,7 +101,7 @@ class Game:
         ################################################################################################################
         #                                        Member Profile Menu
         ################################################################################################################
-        self.fire_button = Button(self.app, text="fire", padx=35, pady=10)
+        self.fire_button = Button(self.app, text="fire", padx=35, pady=10, command=self.fire_member)
         self.member_name_label = Label(self.app, text="")
         self.genre_specialty_label = Label(self.app, text="")
         self.salary_label = Label(self.app, text="")
@@ -227,6 +227,7 @@ class Game:
         self.hype_label.grid(row=1, column=1)
         self.back_button.grid(row=2, column=0)
         self.hire_button.grid(row=2, column=1)
+        self.hire_button["command"] = self.open_hire_members_menu
         buttons = {1: self.member1_button, 2: self.member2_button, 3: self.member3_button, 4: self.member4_button,
                    5: self.member5_button}
         i = 1
@@ -306,17 +307,23 @@ class Game:
         self.instrument_class_button.grid_remove()
         self.change_instrument_button.grid_remove()
 
+    def fire_member(self):
+        if len(self.band.members) > 1:
+            self.band.remove_member(Game._active_member, False)
+        else:
+            print("You need at least 1 member in your band!")
+        self.open_manage_members_menu()
+
     def open_hire_members_menu(self):
-        self.close_all_menus()
-        self.back_button.grid(row=2, column=0)
-        self.back_button["command"] = self.open_manage_members_menu
-        self.flyers_button.grid(row=3, column=0, columnspan=2)
-        self.online_ad_button.grid(row=4, column=0, columnspan=2)
-        self.hire_agent_button.grid(row=5, column=0, columnspan=2)
-        buttons = [self.applicant1_button, self.applicant2_button, self.applicant3_button]
-        for i in range(len(buttons)):
-            button = buttons[i]
-            button["state"] = "normal"
+        if len(self.band.members) < 5:
+            self.close_all_menus()
+            self.back_button.grid(row=2, column=0)
+            self.back_button["command"] = self.open_manage_members_menu
+            self.flyers_button.grid(row=3, column=0, columnspan=2)
+            self.online_ad_button.grid(row=4, column=0, columnspan=2)
+            self.hire_agent_button.grid(row=5, column=0, columnspan=2)
+        else:
+            print("You have the maximum number of band members!")
 
     def close_hire_members_menu(self):
         self.back_button.grid_remove()
@@ -379,11 +386,7 @@ class Game:
 
     def hire_applicant(self, member: Member):
         self.band.add_member(member)
-        buttons = [self.applicant1_button, self.applicant2_button, self.applicant3_button]
-        for i in range(len(buttons)):
-            button = buttons[i]
-            if button["text"] == member.name:
-                button["state"] = "disabled"
+        self.open_manage_members_menu()
 
     def close_applicant_profile(self):
         self.back_button.grid_remove()
