@@ -11,6 +11,13 @@ class Game:
     _active_member = ""
     _active_location = ""
     _members_for_hire = {}
+    _methods_for_hiring = {1: "Post Flyers", 2: "Online Ad Campaign", 3: "Hire Talent Agent"}
+    _costs_for_hiring_method = {1: 0, 2: 10000, 3: 100000}
+
+    @classmethod
+    def get_hiring_string(cls, level: int):
+        hiring_string = Game._methods_for_hiring[level] + "\n" + str(Game._costs_for_hiring_method[level])
+        return hiring_string
 
     @classmethod
     def set_active_member(cls, active_member_name: str):
@@ -82,9 +89,9 @@ class Game:
         ################################################################################################################
         #                                          Hire Members Menu
         ################################################################################################################
-        self.flyers_button = Button(self.app, text="Post Flyers", padx=35, pady=10, command=self.open_members_for_hire_menu)
-        self.online_ad_button = Button(self.app, text="Post Online Ad", padx=35, pady=10, command=lambda: self.open_members_for_hire_menu(2))
-        self.hire_agent_button = Button(self.app, text="Hire Talent Agent", padx=35, pady=10, command=lambda: self.open_members_for_hire_menu(3))
+        self.flyers_button = Button(self.app, text=Game.get_hiring_string(1), padx=35, pady=10, command=lambda: self.look_for_new_members(1))
+        self.online_ad_button = Button(self.app, text=Game.get_hiring_string(2), padx=35, pady=10, command=lambda: self.look_for_new_members(2))
+        self.hire_agent_button = Button(self.app, text=Game.get_hiring_string(3), padx=35, pady=10, command=lambda: self.look_for_new_members(3))
         ################################################################################################################
         #                                      Applicants For Hire Menu
         ################################################################################################################
@@ -306,6 +313,10 @@ class Game:
         self.flyers_button.grid(row=3, column=0, columnspan=2)
         self.online_ad_button.grid(row=4, column=0, columnspan=2)
         self.hire_agent_button.grid(row=5, column=0, columnspan=2)
+        buttons = [self.applicant1_button, self.applicant2_button, self.applicant3_button]
+        for i in range(len(buttons)):
+            button = buttons[i]
+            button["state"] = "normal"
 
     def close_hire_members_menu(self):
         self.back_button.grid_remove()
@@ -313,10 +324,13 @@ class Game:
         self.online_ad_button.grid_remove()
         self.hire_agent_button.grid_remove()
 
-    def open_members_for_hire_menu(self, level=1):
+    def open_members_for_hire_menu(self, level=1, back=False):
         self.close_all_menus()
-        members_for_hire = Band.get_new_members(level)
-        Game._members_for_hire = members_for_hire
+        if not back:
+            members_for_hire = Band.get_new_members(level)
+            Game._members_for_hire = members_for_hire
+        else:
+            members_for_hire = Game._members_for_hire
         buttons = {1: self.applicant1_button, 2: self.applicant2_button, 3: self.applicant3_button}
         i = 1
         for member in members_for_hire.keys():
@@ -335,12 +349,22 @@ class Game:
         self.applicant2_button.grid_remove()
         self.applicant3_button.grid_remove()
 
+    def look_for_new_members(self, method_int: int):
+        hiring_cost = Game._costs_for_hiring_method[method_int]
+        if self.check_band_funds(hiring_cost):
+            self.band.decrease_money(hiring_cost)
+            print("$" + str(hiring_cost) + " deducted for " + Game._methods_for_hiring[method_int])
+            self.open_members_for_hire_menu(method_int)
+        else:
+            print("Not enough money!")
+
     def open_applicant_profile(self, applicant_name: str):
         applicant = Game._members_for_hire[applicant_name]
         self.close_all_menus()
         self.back_button.grid(row=2, column=0)
+        self.back_button["command"] = lambda: self.open_members_for_hire_menu(1, True)
         self.hire_button.grid(row=2, column=1)
-        # self.hire_button["command"] = ""
+        self.hire_button["command"] = lambda: self.hire_applicant(applicant)
         self.set_member_profile_labels(applicant)
         self.update_money_and_hype_labels()
         self.band_money_label.grid(row=1, column=0)
@@ -353,6 +377,14 @@ class Game:
         self.performance_label.grid(row=7, column=0)
         self.theory_label.grid(row=8, column=0)
 
+    def hire_applicant(self, member: Member):
+        self.band.add_member(member)
+        buttons = [self.applicant1_button, self.applicant2_button, self.applicant3_button]
+        for i in range(len(buttons)):
+            button = buttons[i]
+            if button["text"] == member.name:
+                button["state"] = "disabled"
+
     def close_applicant_profile(self):
         self.back_button.grid_remove()
         self.hire_button.grid_remove()
@@ -364,7 +396,6 @@ class Game:
         self.active_instrument_label.grid_remove()
         self.performance_label.grid_remove()
         self.theory_label.grid_remove()
-
 
     def take_class(self, member_name: str, stat: str):
         band_member = self.band.members[member_name]

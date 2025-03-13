@@ -12,6 +12,7 @@ STRINGS_LOCATION = ""
 class DocReader:
     _vars_location = VARS_LOCATION
     _strings_location = STRINGS_LOCATION
+    _member_names_in_use = []
 
     @classmethod
     def get_string(cls, string: str, args: dict):  # string is the name of the string, args is a dict of the words that
@@ -37,19 +38,34 @@ class DocReader:
         var_type_list = DocReader.get_var_type_sheets(var_type)  # ["First Name", "Last Name"] excel page names
         book = openpyxl.load_workbook(DocReader._vars_location)
         plural = False
-        for i in range(len(var_type_list)):
-            page = var_type_list[i]
-            sheet = book[page]
-            x = random.randint(1, sheet.max_row)
-            variable_text += str(sheet.cell(row=x, column=1).value)
-            if var_type == "Band" and i == 0:
-                if sheet.cell(row=x, column=2).value:
-                    plural = True
-            if i < len(var_type_list) - 1:
-                variable_text += " "
-        if plural:
-            variable_text += "s"
+        dupe = True
+        while dupe:
+            for i in range(len(var_type_list)):
+                page = var_type_list[i]
+                sheet = book[page]
+                x = random.randint(1, sheet.max_row)
+                variable_text += str(sheet.cell(row=x, column=1).value)
+                if var_type == "Band" and i == 0:
+                    if sheet.cell(row=x, column=2).value:
+                        plural = True
+                if i < len(var_type_list) - 1:
+                    variable_text += " "
+            if plural:
+                variable_text += "s"
+            if var_type != "Member":
+                dupe = False
+            else:
+                if variable_text not in DocReader._member_names_in_use:
+                    dupe = False
         return variable_text
+
+    @classmethod
+    def add_member_name_in_use(cls, member_name: str):
+        DocReader._member_names_in_use.append(member_name)
+
+    @classmethod
+    def remove_member_name_in_use(cls, member_name: str):
+        DocReader._member_names_in_use.remove(member_name)
 
     @classmethod
     def get_var_type_sheets(cls, var_type: str):

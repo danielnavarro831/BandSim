@@ -52,6 +52,8 @@ class Band:
     def add_member(self, member: Member):
         member_name = member.name
         self.members[member_name] = member
+        DocReader.add_member_name_in_use(member_name)
+        print(member_name + " joined the band!")
 
     def remove_member(self, member_name: str, member_quit=False):
         del self.members[member_name]
@@ -59,6 +61,7 @@ class Band:
             print(member_name + " quit the band due to stress!")
         else:
             print(self.band_name + " decided to part ways with " + member_name)
+        DocReader.remove_member_name_in_use(member_name)
 
     def check_if_album_name_exists(self, name: str):
         if name in self.albums.keys():
